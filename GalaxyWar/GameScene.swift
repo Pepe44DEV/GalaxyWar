@@ -17,10 +17,10 @@ class GameScene: SKScene {
     
     var audioPlayer = AVAudioPlayer()
     var BackgroundAudio: URL?
+    var timerEnemy = Timer()
     
     let soundON = SKShapeNode(circleOfRadius: 20)
     let soundOff = SKShapeNode(circleOfRadius: 20)
-    
     
 
     override func didMove(to view: SKView) {
@@ -67,6 +67,8 @@ class GameScene: SKScene {
         audioPlayer.prepareToPlay()
         audioPlayer.play()
         
+
+        timerEnemy = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(GameScene.addEnemy), userInfo: nil, repeats: true)
     }
     
     
@@ -91,6 +93,28 @@ class GameScene: SKScene {
     }
     
     
+    @objc func addEnemy(){
+        
+        var enemyArray = [SKTexture]()
+        
+        for index in 1...8 {
+            enemyArray.append(SKTexture(imageNamed: "\(index)"))
+        }
+        
+        let enemy = SKSpriteNode(imageNamed: "spaceship_enemy_start")
+        enemy.setScale(0.2)
+        enemy.position = CGPoint(x: CGFloat(arc4random_uniform(UInt32(self.size.width))) + 20, y: self.size.height + enemy.size.height)
+        enemy.zRotation = CGFloat((M_PI / 180) * 180)
+        self.addChild(enemy)
+        
+        
+        enemy.run(SKAction.repeatForever(SKAction.animate(with: enemyArray, timePerFrame: 0.1)))
+        
+        let moveDown = SKAction.moveTo(y: -enemy.size.height, duration: 3)
+        let delete = SKAction.removeFromParent()
+        
+        enemy.run(SKAction.sequence([moveDown,delete]))
+    }
     
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
